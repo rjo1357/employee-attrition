@@ -37,7 +37,7 @@ The cleaned dataset is saved as:
 ## Project Status
 
 - [x] Data cleaning and preparation
-- [ ] Exploratory data analysis
+- [x] Exploratory data analysis
 - [ ] Statistical analysis
 - [ ] Data visualization
 - [ ] Classification model development and comparison
