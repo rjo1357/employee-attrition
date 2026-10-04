@@ -39,7 +39,7 @@ The cleaned dataset is saved as:
 - [x] Data cleaning and preparation
 - [x] Exploratory data analysis
 - [ ] Statistical analysis
-- [ ] Data visualization
+- [x] Data visualization
 - [ ] Classification model development and comparison
 - [ ] Final model evaluation
 - [ ] Save final model
