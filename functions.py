@@ -1,8 +1,10 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, classification_report
+import joblib
 
 data = pd.read_csv('data/raw/Employee-Attrition.csv')
 
@@ -20,6 +22,9 @@ def clean_data(data: pd.DataFrame) -> pd.DataFrame:
         'Non-Travel': 0,
         'Travel_Rarely': 1,
         'Travel_Frequently': 2})
+
+    # Create a new feature for yearly salary based on the monthly income
+    data['yearly_salary'] = data['MonthlyIncome'] * 12
 
     # Drop columns that are not useful for modeling
     data = data.drop(columns=['StandardHours', 'Over18', 'EmployeeCount'])
@@ -41,19 +46,26 @@ def train_logistic_regression_model(data: pd.DataFrame):
     # Split the data into training and testing sets with stratification on the target variable
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=123, test_size=.3)
 
-    # Standardize the features
-    scale = StandardScaler()
-    X_train_scaled = scale.fit_transform(X_train)
-    X_test_scaled = scale.transform(X_test)
+    # Create a pipeline for the logistic regression model with standard scaling
+    lr_model = Pipeline([
+    ('scaler', StandardScaler()),
+    ('logistic_regression', LogisticRegression())
+    ])
 
-    # Train the logistic regression model
-    lr_model = LogisticRegression()
-    lr_model.fit(X_train_scaled, y_train)
+    # Fit the logistic regression model using the training data
+    lr_model.fit(X_train, y_train)
 
-    lr_y_proba = lr_model.predict_proba(X_test_scaled)[:, 1]
+    # Predict probabilities for the test set using the trained model
+    lr_y_proba = lr_model.predict_proba(X_test)[:, 1]
+
+    # Calculate the ROC AUC score for the test set predictions
     lr_roc_auc = roc_auc_score(y_test, lr_y_proba)
 
-    lr_y_pred = lr_model.predict(X_test_scaled)
+    # Train the logistic regression model using the pipeline
+    lr_y_pred = lr_model.predict(X_test)
+
+    # Save the trained model to a file
+    joblib.dump(lr_model, 'models/logistic_regression_model.pkl')
 
     # Return the trained model
     return lr_model, lr_roc_auc, lr_y_pred, y_test
