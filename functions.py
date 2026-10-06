@@ -1,0 +1,59 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score, classification_report
+
+data = pd.read_csv('data/raw/Employee-Attrition.csv')
+
+
+def clean_data(data: pd.DataFrame) -> pd.DataFrame:
+
+    # Convert Attrition from Yes/No to binary values
+    data['Attrition'] = data['Attrition'].map({'Yes': 1, 'No': 0})
+
+    # Convert OverTime from Yes/No to binary values
+    data['OverTime'] = data['OverTime'].map({'Yes': 1, 'No': 0})
+
+    # Encode BusinessTravel as ordered numerical values based on travel frequency
+    data['BusinessTravel'] = data['BusinessTravel'].map({
+        'Non-Travel': 0,
+        'Travel_Rarely': 1,
+        'Travel_Frequently': 2})
+
+    # Drop columns that are not useful for modeling
+    data = data.drop(columns=['StandardHours', 'Over18', 'EmployeeCount'])
+    
+    # Convert all remaining string type columns to category to help save memory and performance
+    string_columns = data.select_dtypes('object').columns.to_list()
+
+    # Apply one-hot encoding to the remaining string type columns
+    data = pd.get_dummies(data=data, columns=string_columns)
+    
+    return data
+
+def train_logistic_regression_model(data: pd.DataFrame):
+
+    # Split the data into features and target variable
+    X = data.drop(columns='Attrition')
+    y = data['Attrition']
+
+    # Split the data into training and testing sets with stratification on the target variable
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=123, test_size=.3)
+
+    # Standardize the features
+    scale = StandardScaler()
+    X_train_scaled = scale.fit_transform(X_train)
+    X_test_scaled = scale.transform(X_test)
+
+    # Train the logistic regression model
+    lr_model = LogisticRegression()
+    lr_model.fit(X_train_scaled, y_train)
+
+    lr_y_proba = lr_model.predict_proba(X_test_scaled)[:, 1]
+    lr_roc_auc = roc_auc_score(y_test, lr_y_proba)
+
+    lr_y_pred = lr_model.predict(X_test_scaled)
+
+    # Return the trained model
+    return lr_model, lr_roc_auc, lr_y_pred, y_test
