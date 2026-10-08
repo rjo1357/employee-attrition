@@ -72,10 +72,11 @@ def train_logistic_regression_model(data: pd.DataFrame):
 
 def dashboard_dataset(data: pd.DataFrame, lr_model, X: pd.DataFrame) -> pd.DataFrame:
 
+    # Generate prediction probabilities for the dashboard dataset using the trained logistic regression model
     proba = pd.DataFrame(
-        lr_model.predict_proba(X.drop(columns='Attrition')),
+        lr_model.predict_proba(X),
         columns=['Stay_Probability', 'Leave_Probability'],
         index=data.index
     )
-
+    # Concatenate the original data with the prediction probabilities for the dashboard
     return pd.concat([data, proba], axis=1)
