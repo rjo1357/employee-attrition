@@ -68,4 +68,14 @@ def train_logistic_regression_model(data: pd.DataFrame):
     joblib.dump(lr_model, 'models/logistic_regression_model.pkl')
 
     # Return the trained model
-    return lr_model, lr_roc_auc, lr_y_pred, y_test
+    return lr_model, lr_roc_auc, lr_y_pred, y_test, X
+
+def dashboard_dataset(data: pd.DataFrame, lr_model, X: pd.DataFrame) -> pd.DataFrame:
+
+    proba = pd.DataFrame(
+        lr_model.predict_proba(X.drop(columns='Attrition')),
+        columns=['Stay_Probability', 'Leave_Probability'],
+        index=data.index
+    )
+
+    return pd.concat([data, proba], axis=1)
