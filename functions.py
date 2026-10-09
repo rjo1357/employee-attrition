@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -78,5 +79,6 @@ def dashboard_dataset(data: pd.DataFrame, lr_model, X: pd.DataFrame) -> pd.DataF
         columns=['Stay_Probability', 'Leave_Probability'],
         index=data.index
     )
+
     # Concatenate the original data with the prediction probabilities for the dashboard
     return pd.concat([data, proba], axis=1)
