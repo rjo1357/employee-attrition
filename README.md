@@ -47,7 +47,7 @@ The dashboard displays employee counts, historical attrition rates, average pred
 
 The dashboard uses PivotTables, PivotCharts, slicers, and Power Query to analyze employee attrition across departments, job levels, and predicted risk categories.
 
-![alt text](image.png)
+![Employee Attrition Dashboard](image-2.png)
 
 The dashboard source data is saved as `data/processed/dashboard_dataset.csv`.
 
